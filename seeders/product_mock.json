@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Lid Tray - 12in Dome",
+        "stock": 21,
+        "priceBuy": 1200,
+        "priceSell": 2374
+    },
+    {
+        "name": "Pie Box - Cello Window 2.5",
+        "stock": 95,
+        "priceBuy": 1223,
+        "priceSell": 1925
+    },
+    {
+        "name": "Lobster - Canned Premium",
+        "stock": 18,
+        "priceBuy": 1152,
+        "priceSell": 1553
+    },
+    {
+        "name": "Pepper - White, Ground",
+        "stock": 26,
+        "priceBuy": 1938,
+        "priceSell": 2573
+    },
+    {
+        "name": "Cognac - Courvaisier",
+        "stock": 30,
+        "priceBuy": 1732,
+        "priceSell": 2754
+    },
+    {
+        "name": "Shrimp - 150 - 250",
+        "stock": 45,
+        "priceBuy": 1673,
+        "priceSell": 2777
+    },
+    {
+        "name": "Oxtail - Cut",
+        "stock": 19,
+        "priceBuy": 1445,
+        "priceSell": 2696
+    },
+    {
+        "name": "Hagen Daza - Dk Choocolate",
+        "stock": 59,
+        "priceBuy": 1056,
+        "priceSell": 2731
+    },
+    {
+        "name": "Soup - Tomato Mush. Florentine",
+        "stock": 89,
+        "priceBuy": 1388,
+        "priceSell": 1866
+    },
+    {
+        "name": "Hot Chocolate - Individual",
+        "stock": 34,
+        "priceBuy": 1083,
+        "priceSell": 1517
+    }
+]

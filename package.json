@@ -1,0 +1,17 @@
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "My awesome app",
+  "scripts": {
+    "dropDb": "npx sequelize db:migrate:undo:all && npx sequelize db:seed:undo:all && npx sequelize db:drop",
+    "createDb": "npx sequelize db:seed:all && npx sequelize db:migrate",
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "nodemon": "^2.0.21",
+    "pg": "^8.10.0",
+    "sequelize": "^6.29.1"
+  }
+}
