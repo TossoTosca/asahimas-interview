@@ -11,12 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.User, { foreignKey: 'userId' });
-      this.belongsTo(models.Product, { foreignKey: 'productId' });
+      this.belongsTo(models.User);
+      this.belongsTo(models.Product);
     }
   }
   UserProduct.init({
-    userId: {
+    UserId: {
       type: DataTypes.INTEGER,
       references: {
         model: "Users",
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: "cascade",
       onDelete: "cascade"
     },
-    productId: {
+    ProductId: {
       type: DataTypes.INTEGER,
       references: {
         model: "Products",

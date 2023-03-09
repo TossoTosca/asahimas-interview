@@ -1,8 +1,7 @@
 const { Product } = require('../models');
 
 
-class productController {
-
+class ProductController {
     static async readAllProd(req, res) {
         try {
             const data = await Product.findAll();
@@ -23,7 +22,7 @@ class productController {
                 return res.status(404).json({ message: 'Product not found' });
             }
 
-            const newStock = product.stock + quantity;
+            const newStock = (product.stock + +quantity);
 
             await product.update({ stock: newStock });
 
@@ -33,6 +32,7 @@ class productController {
             res.status(500).json({ message: 'Internal server error' });
         }
     }
+
 };
 
-module.exports = productController
+module.exports = ProductController

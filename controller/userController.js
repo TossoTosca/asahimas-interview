@@ -1,8 +1,44 @@
-const { User, Product } = require('../models'); // import model User
+const { Sequelize } = require('sequelize');
+const { User, Product, UserProduct } = require('../models');
+const { compare } = require('../helpers/bcrypt');
+const { genPayload } = require('../helpers/jwt');
+
+const config = require('../config/config.json')
+const sequelize = new Sequelize(
+    config.development.database,
+    config.development.username,
+    config.development.password,
+    {
+        host: config.development.host,
+        dialect: config.development.dialect,
+        logging: false,
+    })
+
 
 
 
 class UserController {
+    // fungsi untuk login
+    static async login(req, res) {
+        const { email, password } = req.body;
+        try {
+            const user = await User.findOne({ where: { email } });
+            if (!user) throw new Error('Invalid email or password');
+
+            const isPasswordMatch = compare(password, user.password);
+            if (!isPasswordMatch) throw new Error('Invalid email or password');
+
+            const payload = { id: user.id, email: user.email };
+            const accessToken = genPayload(payload);
+
+            res.status(200).json({ accessToken });
+        } catch (err) {
+            console.error(err);
+            res.status(400).json({ message: err.message });
+        }
+    }
+
+
     // fungsi untuk menampilkan semua user
     static async getAllUsers(req, res) {
         try {
@@ -77,8 +113,9 @@ class UserController {
 
     ///transacion
     static async buyProduct(req, res) {
-        const { userId } = req.params;
-        const { productId, quantity } = req.body;
+        const { userId, productId } = req.params;
+        const { quantity } = req.body;
+        console.log(req.params);
 
         try {
             // Mulai transaksi
@@ -89,18 +126,22 @@ class UserController {
                 // Ambil data produk
                 const product = await Product.findByPk(productId, { transaction: t });
 
+                let qty = Number(quantity)
+                let uid = Number(userId)
+                let pid = Number(productId)
+                console.log(uid, pid)
                 // Kurangi stok produk
-                if (product.stock >= quantity) {
-                    product.stock -= quantity;
-                    await product.save({ transaction: t });
+                if (product.stock >= qty) {
+                    product.stock -= qty;
+                    const histori = await product.save({ transaction: t });
 
                     // Tambahkan data pembelian ke tabel UserProduct
-                    await UserProduct.create(
-                        { userId, productId, quantity },
+                    const createUP = await UserProduct.create(
+                        { userId: uid, productId: pid },
                         { transaction: t }
                     );
 
-                    res.json({ message: 'Product purchased successfully' });
+                    res.json({ message: 'Product purchased successfully', histori, createUP, user });
                 } else {
                     throw new Error('Insufficient stock');
                 }
