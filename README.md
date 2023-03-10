@@ -135,6 +135,31 @@ Response
 Status Code: 200 OK
 Response Body: JSON object yang berisi data seluruh produk.
 
+# POST /products
+
+Description
+endpoint untuk menambahkan product
+
+HTTP Request
+POST http://localhost:3000/products
+
+Request Body :
+
+```json
+{
+  "imgUrl": "link gambar",
+  "name": "nama produk",
+  "price": 1000,
+  "priceBuy": 1000,
+  "priceSell": 15000,
+  "stock": 120
+}
+```
+
+Response
+Status Code: 201 CREATED
+Response Body: JSON object yang berisi data Product yang baru saja ditambahkan ke dalam database.
+
 # GET /products/:id
 
 Description
@@ -154,6 +179,21 @@ Copy code
 {
 "quantity": 10
 }
+
+Response
+Status Code: 200 OK
+Response Body: JSON object yang berisi pesan sukses jika penambahan stock berhasil dilakukan.
+
+# DELETE /products/:id
+
+Description
+Endpoint untuk menghapus produk dengan ID tertentu.
+
+HTTP Request
+GET http://localhost:3000/products/:id
+
+URL Parameter
+id (integer) : ID dari produk yang akan diupdate.
 
 Response
 Status Code: 200 OK
