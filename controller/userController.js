@@ -113,35 +113,37 @@ class UserController {
 
     ///transacion
     static async buyProduct(req, res) {
-        const { userId, productId } = req.params;
+        const { id, productId } = req.params;
         const { quantity } = req.body;
-        console.log(req.params);
+        // console.log(req.params);
 
         try {
             // Mulai transaksi
             await sequelize.transaction(async (t) => {
                 // Ambil data user
-                const user = await User.findByPk(userId, { transaction: t });
+                const user = await User.findByPk(id, { transaction: t });
 
                 // Ambil data produk
                 const product = await Product.findByPk(productId, { transaction: t });
 
                 let qty = Number(quantity)
-                let uid = Number(userId)
+                let uid = Number(id)
                 let pid = Number(productId)
                 // Kurangi stok produk
                 console.log(uid, pid, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+                console.log(product.stock, qty);
                 if (product.stock >= qty) {
                     product.stock -= qty;
                     const histori = await product.save({ transaction: t });
 
                     // Tambahkan data pembelian ke tabel UserProduct
                     const createUP = await UserProduct.create(
-                        { userId: uid, productId: pid },
+                        { UserId: uid, ProductId: pid },
                         { transaction: t }
                     );
-                    createUP.userId = Number(createUP.userId)
-                    createUP.productId = Number(createUP.productId)
+                    console.log("🚀 ~ file: userController.js:144 ~ UserController ~ awaitsequelize.transaction ~ createUP:", createUP)
+                    createUP.UserId = Number(createUP.userId)
+                    createUP.ProductId = Number(createUP.productId)
                     res.json({ message: 'Product purchased successfully', histori, createUP, user, qty });
                 } else {
                     throw new Error('Insufficient stock');
