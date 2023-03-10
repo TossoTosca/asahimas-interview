@@ -129,8 +129,8 @@ class UserController {
                 let qty = Number(quantity)
                 let uid = Number(userId)
                 let pid = Number(productId)
-                console.log(uid, pid)
                 // Kurangi stok produk
+                console.log(uid, pid, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
                 if (product.stock >= qty) {
                     product.stock -= qty;
                     const histori = await product.save({ transaction: t });
@@ -140,8 +140,9 @@ class UserController {
                         { userId: uid, productId: pid },
                         { transaction: t }
                     );
-
-                    res.json({ message: 'Product purchased successfully', histori, createUP, user });
+                    createUP.userId = Number(createUP.userId)
+                    createUP.productId = Number(createUP.productId)
+                    res.json({ message: 'Product purchased successfully', histori, createUP, user, qty });
                 } else {
                     throw new Error('Insufficient stock');
                 }
