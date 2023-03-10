@@ -19,7 +19,7 @@ router.get('/products', ProductController.readAllProd);
 // menambah stock ?? buy
 router.post('/products', ProductController.createProd);
 router.get('/products/:id', ProductController.addStock);
-router.delete('/products/:id', ProductController.deletProd);
+router.delete('/products/:id', ProductController.deleteProd);
 
 
 

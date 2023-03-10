@@ -1,20 +1,6 @@
-const { Sequelize } = require('sequelize');
-const { User, Product, UserProduct } = require('../models');
+const { User, Product, UserProduct, sequelize } = require('../models');
 const { compare } = require('../helpers/bcrypt');
 const { genPayload } = require('../helpers/jwt');
-
-const config = require('../config/config.json')
-const sequelize = new Sequelize(
-    config.development.database,
-    config.development.username,
-    config.development.password,
-    {
-        host: config.development.host,
-        dialect: config.development.dialect,
-        logging: false,
-    })
-
-
 
 
 class UserController {
