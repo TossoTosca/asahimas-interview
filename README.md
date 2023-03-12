@@ -135,6 +135,41 @@ Response
 Status Code: 200 OK
 Response Body: JSON object yang berisi data seluruh produk.
 
+# GET products/:id
+
+Description
+Endpoint untuk menambahkan stock product.dan mengambil info stock nya
+
+HTTP Request
+GET http://localhost:3004/products/:id
+Request Param diperlukan dari id product
+Request Body :
+
+```json
+{
+  "quantity": 2
+}
+```
+
+Response :
+
+```json
+{
+  "message": "Stock added successfully",
+  "product": {
+    "id": 1,
+    "imgUrl": "https://cdn.thewirecutter.com/wp-content/media/2021/09/pencils-2048px-6615.jpg",
+    "name": "Lid Tray - 12in Dome",
+    "price": 2374,
+    "priceBuy": 1200,
+    "priceSell": 2374,
+    "stock": 23,
+    "createdAt": "2023-03-10T08:42:45.515Z",
+    "updatedAt": "2023-03-11T17:53:52.080Z"
+  }
+}
+```
+
 # POST /products
 
 Description

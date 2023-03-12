@@ -42,7 +42,7 @@ class ProductController {
     }
     static async addStock(req, res) {
         try {
-            const productId = req.params.productId;
+            const productId = req.params.id;
             const { quantity } = req.body;
 
             const product = await Product.findByPk(productId);

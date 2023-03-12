@@ -16,8 +16,8 @@ router.get("/users/:id/products/:productId", UserController.buyProduct);
 
 
 router.get('/products', ProductController.readAllProd);
-// menambah stock ?? buy
 router.post('/products', ProductController.createProd);
+// menambah stock ?? buy
 router.get('/products/:id', ProductController.addStock);
 router.delete('/products/:id', ProductController.deleteProd);
 
