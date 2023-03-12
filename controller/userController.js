@@ -100,46 +100,47 @@ class UserController {
     ///transacion
     static async buyProduct(req, res) {
         const { id, productId } = req.params;
-        const { quantity } = req.body;
-        // console.log(req.params);
+        const { quantity, perintah } = req.body;
 
         try {
-            // Mulai transaksi
             await sequelize.transaction(async (t) => {
-                // Ambil data user
                 const user = await User.findByPk(id, { transaction: t });
-
-                // Ambil data produk
                 const product = await Product.findByPk(productId, { transaction: t });
 
-                let qty = Number(quantity)
-                let uid = Number(id)
-                let pid = Number(productId)
-                // Kurangi stok produk
-                console.log(uid, pid, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-                console.log(product.stock, qty);
-                if (product.stock >= qty) {
-                    product.stock -= qty;
-                    const histori = await product.save({ transaction: t });
+                let qty = Number(quantity);
+                let uid = Number(id);
+                let pid = Number(productId);
 
-                    // Tambahkan data pembelian ke tabel UserProduct
-                    const createUP = await UserProduct.create(
-                        { UserId: uid, ProductId: pid },
-                        { transaction: t }
-                    );
-                    console.log("🚀 ~ file: userController.js:144 ~ UserController ~ awaitsequelize.transaction ~ createUP:", createUP)
-                    createUP.UserId = Number(createUP.userId)
-                    createUP.ProductId = Number(createUP.productId)
-                    res.json({ message: 'Product purchased successfully', histori, createUP, user, qty });
+                if (perintah === "jual") {
+                    if (product.stock >= qty) {
+                        product.stock -= qty;
+                    } else {
+                        throw new Error('Insufficient stock');
+                    }
+                } else if (perintah === "beli") {
+                    product.stock += qty;
                 } else {
-                    throw new Error('Insufficient stock');
+                    throw new Error('Invalid command');
                 }
+
+                const histori = await product.save({ transaction: t });
+
+                const createUP = await UserProduct.create(
+                    { UserId: uid, ProductId: pid },
+                    { transaction: t }
+                );
+
+                createUP.UserId = Number(createUP.userId);
+                createUP.ProductId = Number(createUP.productId);
+
+                res.json({ message: 'Product purchase/sale successful', histori, createUP, user, qty });
             });
         } catch (err) {
             console.error(err);
-            res.status(500).json({ message: 'Failed to purchase product' });
+            res.status(500).json({ message: 'Failed to purchase/sell product' });
         }
     }
+
 }
 
 // ekspor fungsi-fungsi yang dibutuhkan
