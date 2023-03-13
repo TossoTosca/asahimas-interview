@@ -5,18 +5,23 @@ const router = express.Router();
 
 router.post('/login', UserController.login);
 
-router.get("/users", UserController.getAllUsers);
 router.post("/users", UserController.createUser);
 router.get("/users/:id", UserController.getUserById);
 router.put("/users/:id", UserController.updateUserById);
 router.delete("/users/:id", UserController.deleteUserById);
 
-//mengurangi stock melalui transaksi ?? sell
-router.get("/users/:id/products/:productId", UserController.buyProduct);
 
+//mengurangi stock product melalui penjulan dari web ke user ,butuh req body quantity
+router.get("/buyProduct", UserController.buyProduct);
+//menambahkan stock product dengan menjual milik user ke webapp, butuh req body quantity
+router.get("/sellProduct", UserController.sellProduct);
+
+//mengambil query product yg dimiliki user 
+router.get("/myProduct", UserController.getMyProduct)
 
 router.get('/products', ProductController.readAllProd);
 router.post('/products', ProductController.createProd);
+//meminta admin menghapus produk dari web app
 router.delete('/products/:id', ProductController.deleteProd);
 
 

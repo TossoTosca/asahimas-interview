@@ -1,13 +1,17 @@
-const { Product } = require('../models');
+const { verifyToken } = require('../helpers/jwt');
+const { Product, History } = require('../models');
 
 
 class ProductController {
 
-    // fungsi untuk membuat produk baru
+    // fungsi untuk membuat produk baru, make sure on check input form in fe.
     static async createProd(req, res) {
-        const { imgUrl, name, price, priceBuy, priceSell, stock } = req.body;
         try {
-            const newProd = await Product.create({ imgUrl, name, price, priceBuy, priceSell, stock });
+            const accessToken = req.query.accessToken
+            const id = verifyToken(accessToken).id
+            console.log(id)
+            const newProd = await History.create({ ...req.body, userId: id });
+            console.log(newProd)
             res.status(201).json(newProd);
         } catch (error) {
             console.error(error);
