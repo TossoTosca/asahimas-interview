@@ -6,9 +6,8 @@ const router = express.Router();
 router.post('/login', UserController.login);
 
 router.post("/users", UserController.createUser);
-router.get("/users/:id", UserController.getUserById);
-router.put("/users/:id", UserController.updateUserById);
-router.delete("/users/:id", UserController.deleteUserById);
+router.get("/users", UserController.getUserById);
+router.delete("/users", UserController.deleteUserById);
 
 
 //mengurangi stock product melalui penjulan dari web ke user ,butuh req body quantity

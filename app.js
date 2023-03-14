@@ -4,7 +4,7 @@ const app = express();
 const routes = require('./routes/routes');
 
 app.use(cors());
-app.use(express?.json())
+app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use("/", routes);
 

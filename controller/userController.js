@@ -28,7 +28,8 @@ class UserController {
 
     // fungsi untuk menampilkan detail user berdasarkan ID
     static async getUserById(req, res) {
-        const { id } = req.params;
+        const payload = req.query.myAccount
+        const id = verifyToken(payload).id
         try {
             const user = await User.findByPk(id);
             if (!user) {
@@ -53,26 +54,12 @@ class UserController {
         }
     }
 
-    // fungsi untuk mengupdate data user berdasarkan ID
-    static async updateUserById(req, res) {
-        const { id } = req.params;
-        const { name, email, password, role } = req.body;
-        try {
-            const user = await User.findByPk(id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            const updatedUser = await user.update({ name, email, password, role });
-            res.status(200).json(updatedUser);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Internal server error' });
-        }
-    }
+
 
     // fungsi untuk menghapus user berdasarkan ID
     static async deleteUserById(req, res) {
-        const { id } = req.params;
+        const payload = req.query.myAccount
+        const id = verifyToken(payload).id
         try {
             const user = await User.findByPk(id);
             if (!user) {
@@ -93,7 +80,11 @@ class UserController {
         let option = {
             where: {
                 userId
-            }
+            },
+            include: [{
+                model: User,
+                attributes: ['name']
+            }]
         }
         try {
             const myProd = await History.findAll(option)
