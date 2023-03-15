@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "My awesome app",
   "scripts": {
-    "start": "nodemon bin/www",
+    "start": "nodemon app.js",
     "restartDb": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate && npx sequelize db:seed:all",
     "test": "jest"
   },

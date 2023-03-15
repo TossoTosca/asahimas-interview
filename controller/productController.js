@@ -1,5 +1,5 @@
 const { verifyToken } = require('../helpers/jwt');
-const { Product, History } = require('../models');
+const { Product, MyProduct } = require('../models');
 
 
 class ProductController {
@@ -10,7 +10,7 @@ class ProductController {
             const accessToken = req.query.accessToken
             const id = verifyToken(accessToken).id
             console.log(id)
-            const newProd = await History.create({ ...req.body, userId: id });
+            const newProd = await MyProduct.create({ ...req.body, userId: id });
             console.log(newProd)
             res.status(201).json(newProd);
         } catch (error) {
@@ -37,7 +37,7 @@ class ProductController {
 
     static async readAllProd(req, res) {
         try {
-            const data = await Product.findAll();
+            const data = await Product.findAll({ order: [['updatedAt', 'DESC']] });
             res.status(200).json(data)
         } catch (error) {
             console.log(error)

@@ -23,6 +23,8 @@ router.post('/products', ProductController.createProd);
 //meminta admin menghapus produk dari web app
 router.delete('/products/:id', ProductController.deleteProd);
 
+router.get('/payment', UserController.proceedSell)
+
 
 
 

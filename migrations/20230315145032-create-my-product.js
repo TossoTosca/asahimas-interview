@@ -2,7 +2,9 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Histories', {
+    const { DataTypes } = Sequelize;
+
+    await queryInterface.createTable('MyProducts', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -19,23 +21,22 @@ module.exports = {
         onUpdate: "cascade",
         onDelete: "cascade"
       },
-
-      imgUrl: {
-        type: Sequelize.STRING
-      },
       name: {
         type: Sequelize.STRING
       },
-      price: {
-        type: Sequelize.INTEGER
+      imgUrl: {
+        type: Sequelize.STRING
       },
       stock: {
         type: Sequelize.INTEGER
       },
-      priceBuy: {
+      price: {
         type: Sequelize.INTEGER
       },
       priceSell: {
+        type: Sequelize.INTEGER
+      },
+      priceBuy: {
         type: Sequelize.INTEGER
       },
       createdAt: {
@@ -49,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Histories');
+    await queryInterface.dropTable('MyProducts');
   }
 };

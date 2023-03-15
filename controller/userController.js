@@ -1,4 +1,4 @@
-const { User, Product, UserProduct, History, sequelize } = require('../models');
+const { User, Product, UserProduct, MyProduct, Transaction, sequelize } = require('../models');
 const { compare } = require('../helpers/bcrypt');
 const { genPayload, verifyToken } = require('../helpers/jwt');
 
@@ -32,10 +32,27 @@ class UserController {
         const id = verifyToken(payload).id
         try {
             const user = await User.findByPk(id);
+            const account = await Transaction.findAll({
+                where: {
+                    UserId: user.id
+                }
+            })
+
+            let bank = account.length > 0 ? 0 : null;
+            const money = account.map(el => { return bank += Number(el.amount) })
+
+            const me = {
+                name: user.name,
+                email: user.email,
+                money: bank,
+                role: user.role
+            }
+
+
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-            res.status(200).json(user);
+            res.status(200).json(me);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Internal server error' });
@@ -81,13 +98,14 @@ class UserController {
             where: {
                 userId
             },
+            order: [['updatedAt', 'DESC']],
             include: [{
                 model: User,
                 attributes: ['name']
             }]
         }
         try {
-            const myProd = await History.findAll(option)
+            const myProd = await MyProduct.findAll(option)
             res.status(200).json(myProd)
         } catch (error) {
             res.status(500).json({ message: 'Internal server error' });
@@ -95,127 +113,149 @@ class UserController {
     }
 
 
-    ///transacion
     static async buyProduct(req, res) {
         const accessToken = req.query.accessToken;
         const productId = req.query.productId;
         const quantity = req.query.quantity;
 
-
         let qty = Number(quantity);
         let pid = Number(productId);
-        const id = verifyToken(accessToken).id
-
-        try {
-            await sequelize.transaction(async (t) => {
-                const user = await User.findByPk(id, { transaction: t });
-                const product = await Product.findByPk(productId, { transaction: t });
-
-
-                if (product.stock <= qty) {
-                    return res.status(400).json({ message: 'stock kurang dari qty yang diminta' })
-                }
-
-                product.stock -= qty;
-
-                const updatedProduct = await product.save({ transaction: t });
-
-                const [history, created] = await History.findOrCreate({
-                    where: { userId: id, name: product.name },
-                    defaults: {
-                        imgUrl: product.imgUrl,
-                        name: product.name,
-                        price: product.price,
-                        stock: qty,
-                        priceSell: product.priceSell,
-                        priceBuy: product.priceBuy
-                    }
-                });
-
-                if (history) {
-                    await History.update({
-                        imgUrl: history.imgUrl = updatedProduct.imgUrl,
-                        name: history.name = updatedProduct.name,
-                        price: history.price = updatedProduct.price,
-                        stock: history.stock + qty,
-                        priceSell: history.priceSell = updatedProduct.priceSell,
-                        priceBuy: history.priceBuy = updatedProduct.priceBuy
-                    }, {
-                        where: { id: history.id }
-                    })
-                }
-
-                await Product.destroy({ where: { stock: 0 } });
-
-                const createUP = await UserProduct.create(
-                    { UserId: id, ProductId: pid },
-                    { transaction: t }
-                );
-
-                createUP.UserId = Number(createUP.userId);
-                createUP.ProductId = Number(createUP.productId);
-
-                res.json({ message: 'Product purchase successful', updatedProduct, history });
-            });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ message: 'Failed to purchase product' });
-        }
-    }
-
-
-    // sell product 
-    static async sellProduct(req, res) {
-        const accessToken = req.query.accessToken;
-        const productName = req.query.productName;
-        const quantity = req.query.quantity;
-        const historyId = req.query.historyId
-
-
-        let qty = Number(quantity);
         const id = verifyToken(accessToken).id;
-        let hid = Number(historyId)
 
         try {
-            await sequelize.transaction(async (t) => {
-                const user = await User.findByPk(id, { transaction: t });
-                const product = await Product.findOne({ where: { name: productName } }, { transaction: t });
-
-                const findUserProd = await History.findOne({ where: { id: hid } });
-
-                if (findUserProd.dataValues.stock <= qty) {
-                    return res.status(400).json({ message: 'stock kurang dari qty yang diminta' })
-                }
-
-                if (findUserProd.dataValues.name !== product.dataValues.name) {
-                    return res.status(400).json({ message: 'product di web dan milik user berbeda!' })
-                }
-
-                await History.update({ stock: findUserProd.dataValues.stock - qty }, { where: { id: hid } });
-                await Product.update({ stock: product.dataValues.stock + qty }, { where: { name: productName } });
-
-
-
-                const updatedProduct = await product.save({ transaction: t });
-                const updatedHistory = await findUserProd.dataValues
-
-                await Product.destroy({ where: { stock: 0 } });
-
-                const createUP = await UserProduct.create(
-                    { UserId: id, ProductId: product.dataValues.id },
-                    { transaction: t }
-                );
-
-                createUP.UserId = Number(createUP.userId);
-                createUP.ProductId = Number(createUP.productId);
-
-                res.json({ message: 'Product sale successful', updatedProduct, updatedHistory });
+            const foundProduct = await Product.findOne({
+                where: {
+                    id: pid,
+                },
             });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ message: 'Failed to sell product' });
+
+            if (!foundProduct) {
+                res.status(404).json({ message: 'Product not found' });
+                return;
+            }
+
+            const [myProd, created] = await MyProduct.findOrCreate({
+                where: {
+                    name: foundProduct.name,
+                },
+                defaults: {
+                    userId: id,
+                    name: foundProduct.name,
+                    imgUrl: foundProduct.imgUrl,
+                    price: foundProduct.price,
+                    stock: qty,
+                    priceSell: foundProduct.priceSell,
+                    priceBuy: foundProduct.priceBuy,
+                },
+            });
+
+            if (!created) {
+                myProd.stock += qty;
+                await myProd.save();
+            } else {
+                foundProduct.stock -= qty;
+                if (foundProduct.stock === 0) { // check if stock is zero before save
+                    await foundProduct.destroy();
+                } else {
+                    await foundProduct.save();
+                }
+            }
+
+            res.status(200).json({
+                message: 'Product successfully bought',
+                product: foundProduct,
+                myProduct: myProd,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal server error' });
         }
     }
+
+    static async sellProduct(req, res) {
+        try {
+            const { accessToken, productName, quantity, myProductId } = req.query;
+            const qty = Number(quantity);
+            const userId = verifyToken(accessToken).id;
+            const myProduct = await MyProduct.findByPk(myProductId);
+
+            if (!myProduct) {
+                throw new Error('MyProduct not found.');
+            }
+
+            const [product, craeted] = await Product.findOrCreate({
+                where: { name: productName },
+                defaults: {
+                    name: myProduct.name,
+                    imgUrl: myProduct.imgUrl,
+                    price: myProduct.price,
+                    priceBuy: myProduct.priceBuy,
+                    priceSell: myProduct.priceSell,
+                    stock: 0
+                }
+            });
+
+            const updatedStock = product.stock + qty;
+
+            await Promise.all([product.update({ stock: updatedStock }),
+            myProduct.update({ stock: myProduct.stock - qty })]);
+
+            if (myProduct.stock === 0) {
+                await myProduct.destroy();
+            }
+
+            return res.status(200).json({ message: 'Successfully sold product.' });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Unable to sell product.' });
+        }
+    }
+
+    static async proceedSell(req, res) {
+        const payload = req.query.accessToken
+        const id = verifyToken(payload).id
+
+        try {
+            await sequelize.transaction(async (transaction) => {
+
+                const products = await MyProduct.findAll({
+                    where: {
+                        userId: id
+                    }
+                })
+
+                const getTotalStock = products.reduce((acc, product) => acc + product.stock, 0)
+                const getTotalSell = products.reduce((acc, product) => acc + product.priceSell, 0)
+                const getTotalAmount = getTotalSell * getTotalStock
+                const invoiceNum = Date.now() + products.length
+
+                const user = await User.findByPk(id)
+
+                // create a transaction
+                const madePurchase = await Transaction.create({
+                    UserId: id,
+                    amount: getTotalAmount,
+                    invoiceNumber: invoiceNum
+                }, { transaction })
+                const money = madePurchase.amount
+                // update stock of all products
+                const promisesForUpdateStocks = products.map(product => {
+                    if (product.stock > 0) {
+                        return product.decrement({ stock: product.stock }, { transaction })
+                    } else {
+                        return product.destroy({ transaction })
+                    }
+                })
+                await Promise.all(promisesForUpdateStocks)
+                res.status(200).json({ message: "Transaction made", madePurchase, money })
+            })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json(error)
+        }
+    }
+
+
 
 
 }
